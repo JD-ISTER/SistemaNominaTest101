@@ -1,0 +1,143 @@
+﻿@model SistemaNominaMVC.Models.Department
+@{
+    ViewData["Title"] = "Nuevo Departamento";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">@ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Datos del Departamento</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="dept_no" class="control-label">Código <span class="text-danger">*</span></label>
+                            <input asp-for="dept_no" class="form-control" maxlength="4"
+                                   placeholder="Ej: D001" required />
+                            <small class="text-muted">Máximo 4 caracteres</small>
+                            <span asp-validation-for="dept_no" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="dept_name" class="control-label">Nombre <span class="text-danger">*</span></label>
+                            <input asp-for="dept_name" class="form-control"
+                                   placeholder="Nombre del departamento" required />
+                            <span asp-validation-for="dept_name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Información</h6>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <i class="fas fa-info-circle text-primary"></i>
+                        Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                    </p>
+                    <p>
+                        <i class="fas fa-building text-primary"></i>
+                        El código debe ser único en el sistema.
+                    </p>
+                    <p>
+                        <i class="fas fa-tag text-primary"></i>
+                        El nombre del departamento debe ser descriptivo.
+                    </p>
+                    <hr />
+                    <p class="fw-bold">Formato sugerido para código:</p>
+                    <ul class="small">
+                        <li>D001 - Dirección</li>
+                        <li>D002 - Recursos Humanos</li>
+                        <li>D003 - Tecnología</li>
+                        <li>D004 - Finanzas</li>
+                        <li>D005 - Marketing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Validación personalizada para código único
+            $.validator.addMethod('uniqueCode', function(value, element) {
+                var isValid = false;
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("VerifyCode")',
+                    data: { code: value },
+                    async: false,
+                    success: function(data) {
+                        isValid = !data.exists;
+                    }
+                });
+                return isValid;
+            }, 'El código ya existe');
+
+            $("#dept_no").rules('add', {
+                required: true,
+                maxlength: 4,
+                uniqueCode: true,
+                pattern: /^[A-Z0-9]{3,4}$/,
+                messages: {
+                    pattern: 'El código debe contener solo letras mayúsculas y números (3-4 caracteres)'
+                }
+            });
+
+            // Validación para nombre único
+            $.validator.addMethod('uniqueName', function(value, element) {
+                var isValid = false;
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("VerifyName")',
+                    data: { name: value },
+                    async: false,
+                    success: function(data) {
+                        isValid = !data.exists;
+                    }
+                });
+                return isValid;
+            }, 'El nombre del departamento ya existe');
+
+            $("#dept_name").rules('add', {
+                required: true,
+                minlength: 3,
+                uniqueName: true
+            });
+
+            // Convertir código a mayúsculas automáticamente
+            $('#dept_no').on('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+    </script>
+}
