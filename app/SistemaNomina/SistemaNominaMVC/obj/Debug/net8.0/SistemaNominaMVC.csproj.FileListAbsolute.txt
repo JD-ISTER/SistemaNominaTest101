@@ -148,3 +148,4 @@ C:\SistemaNomina\SistemaNominaMVC\app\SistemaNomina\SistemaNominaMVC\obj\Debug\n
 C:\SistemaNomina\SistemaNominaMVC\app\SistemaNomina\SistemaNominaMVC\obj\Debug\net8.0\ref\SistemaNominaMVC.dll
 C:\SistemaNomina\SistemaNominaMVC\app\SistemaNomina\SistemaNominaMVC\bin\Debug\net8.0\System.Xml.XPath.XmlDocument.dll
 C:\SistemaNomina\SistemaNominaMVC\app\SistemaNomina\SistemaNominaMVC\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\SistemaNomina\SistemaNominaMVC\app\SistemaNomina\SistemaNominaMVC\obj\Debug\net8.0\swae.build.ex.cache
