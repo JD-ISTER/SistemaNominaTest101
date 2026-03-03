@@ -1,0 +1,168 @@
+﻿@model SistemaNominaMVC.Models.Employee
+@{
+    ViewData["Title"] = "Detalles del Empleado";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Detalles del Empleado</h1>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model?.emp_no" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información personal -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Información Personal</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Código:</dt>
+                        <dd class="col-sm-8">@Model.emp_no</dd>
+
+                        <dt class="col-sm-4">CI/NIT:</dt>
+                        <dd class="col-sm-8">@Model.ci</dd>
+
+                        <dt class="col-sm-4">Nombre:</dt>
+                        <dd class="col-sm-8">@Model.first_name @Model.last_name</dd>
+
+                        <dt class="col-sm-4">Género:</dt>
+                        <dd class="col-sm-8">@(Model.gender == "M" ? "Masculino" : "Femenino")</dd>
+
+                        <dt class="col-sm-4">Fecha Nacimiento:</dt>
+                        <dd class="col-sm-8">@Model.birth_date.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">@Model.correo</dd>
+
+                        <dt class="col-sm-4">Fecha Contratación:</dt>
+                        <dd class="col-sm-8">@Model.hire_date.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Estado:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información laboral -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Información Laboral</h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="font-weight-bold">Departamento Actual:</h6>
+                    @{
+                        var deptoActual = Model.DeptEmps?.FirstOrDefault(d => d.to_date == null);
+                    }
+                    @if (deptoActual != null)
+                    {
+                        <p>@deptoActual.Department?.dept_name</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No asignado</p>
+                    }
+
+                    <h6 class="font-weight-bold mt-3">Cargo Actual:</h6>
+                    @{
+                        var tituloActual = Model.Titles?.FirstOrDefault(t => t.to_date == null);
+                    }
+                    @if (tituloActual != null)
+                    {
+                        <p>@tituloActual.title</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Sin cargo asignado</p>
+                    }
+
+                    <h6 class="font-weight-bold mt-3">Salario Actual:</h6>
+                    @{
+                        var salarioActual = Model.Salaries?.FirstOrDefault(s => s.to_date == null);
+                    }
+                    @if (salarioActual != null)
+                    {
+                        <p>@salarioActual.salary.ToString("C2")</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Sin salario asignado</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de asignaciones -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Historial de Asignaciones</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Departamento</th>
+                                    <th>Desde</th>
+                                    <th>Hasta</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.DeptEmps != null && Model.DeptEmps.Any())
+                                {
+                                    foreach (var item in Model.DeptEmps.OrderByDescending(d => d.from_date))
+                                    {
+                                        <tr>
+                                            <td>@item.Department?.dept_name</td>
+                                            <td>@item.from_date.ToString("dd/MM/yyyy")</td>
+                                            <td>@(item.to_date?.ToString("dd/MM/yyyy") ?? "Actual")</td>
+                                            <td>
+                                                @if (item.to_date == null)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">Sin asignaciones</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

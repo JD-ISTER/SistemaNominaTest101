@@ -1,0 +1,204 @@
+﻿@model SistemaNominaMVC.Models.ViewModels.SalaryCreateViewModel
+@{
+    ViewData["Title"] = "Nuevo Salario";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">@ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Registrar Nuevo Salario</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        @if (Model.EmployeeId.HasValue)
+                        {
+                            <input type="hidden" asp-for="emp_no" />
+                            <input type="hidden" asp-for="EmployeeId" />
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Registrando salario para: <strong>@Model.EmployeeName</strong>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group mb-3">
+                                <label asp-for="emp_no" class="control-label">Empleado <span class="text-danger">*</span></label>
+                                <select asp-for="emp_no" class="form-select" asp-items="ViewBag.Employees" required>
+                                    <option value="">-- Seleccione un empleado --</option>
+                                </select>
+                                <span asp-validation-for="emp_no" class="text-danger"></span>
+                            </div>
+                        }
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="salary" class="control-label">Salario <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="salary" class="form-control" type="number" step="0.01" min="0" required />
+                                    </div>
+                                    <span asp-validation-for="salary" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="from_date" class="control-label">Fecha de Inicio <span class="text-danger">*</span></label>
+                                    <input asp-for="from_date" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                                    <span asp-validation-for="from_date" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Salario
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Información</h6>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <i class="fas fa-info-circle text-primary"></i>
+                        Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                    </p>
+                    <p>
+                        <i class="fas fa-clock text-primary"></i>
+                        El salario anterior se cerrará automáticamente.
+                    </p>
+                    <p>
+                        <i class="fas fa-chart-line text-primary"></i>
+                        El historial de cambios queda registrado en auditoría.
+                    </p>
+
+                    @if (Model.EmployeeId.HasValue)
+                    {
+                        <hr />
+                        <p class="fw-bold">Salario actual del empleado:</p>
+                        @if (Model.CurrentSalary.HasValue)
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Salario vigente: @Model.CurrentSalary.Value.ToString("C2")
+                                <br />
+                                <small class="d-block mt-1">
+                                    Desde: @(Model.CurrentSalaryFromDate?.ToString("dd/MM/yyyy") ?? "N/A")
+                                </small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success">
+                                <i class="fas fa-check"></i>
+                                El empleado no tiene salario activo
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Validación personalizada para el salario
+            $.validator.addMethod('minSalary', function(value, element) {
+                var valor = parseFloat(value);
+                return !isNaN(valor) && valor > 0;
+            }, 'El salario debe ser mayor a 0');
+
+            $("#salary").rules('add', {
+                minSalary: true,
+                required: true,
+                number: true,
+                min: 0.01
+            });
+
+            // Validación de fecha
+            $.validator.addMethod('futureDate', function(value, element) {
+                var fecha = new Date(value);
+                var hoy = new Date();
+                hoy.setHours(0,0,0,0);
+                return fecha >= hoy;
+            }, 'La fecha no puede ser anterior a hoy');
+
+            $("#from_date").rules('add', {
+                required: true,
+                date: true,
+                futureDate: true
+            });
+
+            // Confirmación antes de guardar cuando hay salario actual
+            var tieneSalarioActual = @(Model.EmployeeId.HasValue && Model.CurrentSalary.HasValue ? "true" : "false");
+            var salarioActual = @(Model.CurrentSalary.HasValue? Model.CurrentSalary.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "0");
+
+            if (tieneSalarioActual) {
+                $('form').submit(function(e) {
+                    var salary = parseFloat($('#salary').val());
+
+                    if (salary <= salarioActual) {
+                        return confirm('El nuevo salario es menor o igual al actual. ¿Está seguro de continuar?');
+                    }
+                    return true;
+                });
+            }
+
+            // Cargar salario actual cuando se selecciona un empleado
+            $('#emp_no').change(function() {
+                var employeeId = $(this).val();
+                if (employeeId) {
+                    $.getJSON('@Url.Action("GetSalariesByEmployee")', { employeeId: employeeId }, function(data) {
+                        var salarioActivo = null;
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].isActive) {
+                                salarioActivo = data[i];
+                                break;
+                            }
+                        }
+
+                        var infoDiv = $('#currentSalaryInfo');
+                        if (!infoDiv.length) {
+                            infoDiv = $('<div id="currentSalaryInfo"></div>');
+                            $('#emp_no').parent().after(infoDiv);
+                        }
+
+                        if (salarioActivo) {
+                            infoDiv.html('<div class="alert alert-warning mt-2">' +
+                                '<i class="fas fa-info-circle"></i> Salario actual: ' + salarioActivo.salary +
+                                ' (desde ' + salarioActivo.from_date + ')</div>');
+                        } else {
+                            infoDiv.html('<div class="alert alert-success mt-2">' +
+                                '<i class="fas fa-check"></i> El empleado no tiene salario activo</div>');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

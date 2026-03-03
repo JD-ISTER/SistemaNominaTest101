@@ -1,0 +1,118 @@
+﻿@model SistemaNominaMVC.Models.Employee
+@{
+    ViewData["Title"] = "Nuevo Empleado";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Nuevo Empleado</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Datos del Empleado</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="ci" class="control-label">CI/NIT *</label>
+                                    <input asp-for="ci" class="form-control" required />
+                                    <span asp-validation-for="ci" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="correo" class="control-label">Correo Electrónico *</label>
+                                    <input asp-for="correo" class="form-control" type="email" required />
+                                    <span asp-validation-for="correo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="first_name" class="control-label">Primer Nombre *</label>
+                                    <input asp-for="first_name" class="form-control" required />
+                                    <span asp-validation-for="first_name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="last_name" class="control-label">Apellido *</label>
+                                    <input asp-for="last_name" class="form-control" required />
+                                    <span asp-validation-for="last_name" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="birth_date" class="control-label">Fecha Nacimiento *</label>
+                                    <input asp-for="birth_date" class="form-control" type="date" required />
+                                    <span asp-validation-for="birth_date" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="gender" class="control-label">Género *</label>
+                                    <select asp-for="gender" class="form-control" required>
+                                        <option value="">Seleccione...</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                    <span asp-validation-for="gender" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="hire_date" class="control-label">Fecha Contratación *</label>
+                                    <input asp-for="hire_date" class="form-control" type="date" required />
+                                    <span asp-validation-for="hire_date" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Información</h6>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-info-circle text-primary"></i> Los campos marcados con * son obligatorios.</p>
+                    <p><i class="fas fa-calendar text-primary"></i> Las fechas deben estar en formato válido.</p>
+                    <p><i class="fas fa-envelope text-primary"></i> El correo debe ser único en el sistema.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

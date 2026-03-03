@@ -1,0 +1,179 @@
+﻿@model SistemaNominaMVC.Models.Employee
+@{
+    ViewData["Title"] = $"Historial de Salarios - {Model.first_name} {Model.last_name}";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3">Historial de Salarios</h1>
+            <p class="text-muted">
+                <i class="fas fa-user"></i> @Model.first_name @Model.last_name - CI: @Model.ci
+            </p>
+        </div>
+        <div>
+            <a asp-action="Create" asp-route-employeeId="@Model.emp_no" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Salario
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Gráfico de evolución salarial -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Evolución Salarial</h6>
+        </div>
+        <div class="card-body">
+            <canvas id="salaryChart" style="height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Tabla de historial -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Historial Completo</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Período</th>
+                            <th>Salario</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Duración</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var salary in Model.Salaries.OrderByDescending(s => s.from_date))
+                        {
+                            var duracion = salary.to_date.HasValue
+                            ? (salary.to_date.Value - salary.from_date).Days
+                            : (DateTime.Today - salary.from_date).Days;
+
+                            var años = duracion / 365;
+                            var meses = (duracion % 365) / 30;
+
+                            <tr>
+                                <td>@salary.from_date.ToString("dd/MM/yyyy") - @(salary.to_date?.ToString("dd/MM/yyyy") ?? "Actual")</td>
+                                <td class="text-end fw-bold">@salary.salary.ToString("C2")</td>
+                                <td>@salary.from_date.ToString("dd/MM/yyyy")</td>
+                                <td>@(salary.to_date?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                <td>
+                                    @if (años > 0)
+                                    {
+                                        <span>@años año@(años > 1 ? "s" : "")</span>
+                                    }
+                                    @if (meses > 0)
+                                    {
+                                        <span>@meses mes@(meses > 1 ? "es" : "")</span>
+                                    }
+                                    @if (años == 0 && meses == 0)
+                                    {
+                                        <span>@duracion días</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (salary.to_date == null)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Histórico</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="2">Salario Actual:</th>
+                            <th colspan="4" class="text-end">
+                                @(Model.Salaries.FirstOrDefault(s => s.to_date == null)?.salary.ToString("C2") ?? "Sin salario activo")
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Datos para el gráfico
+            var fechas = [];
+            var salarios = [];
+
+            @foreach (var salary in Model.Salaries.OrderBy(s => s.from_date))
+            {
+                    <text>
+                    fechas.push('@salary.from_date.ToString("dd/MM/yyyy")');
+                    salarios.push(@salary.salary);
+                    </text>
+            }
+
+            var ctx = document.getElementById('salaryChart').getContext('2d');
+            var salaryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Evolución Salarial',
+                        data: salarios,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        pointBackgroundColor: '#4e73df',
+                        pointBorderColor: '#4e73df',
+                        pointHoverBackgroundColor: '#224abe',
+                        pointHoverBorderColor: '#224abe',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Salario: ' + new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: 'USD'
+                                    }).format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: 'USD',
+                                        minimumFractionDigits: 0
+                                    }).format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,201 @@
+﻿@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sistema de Nómina</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .login-header h2 {
+                color: #333;
+                font-weight: 600;
+                margin-bottom: 10px;
+            }
+
+            .login-header p {
+                color: #666;
+                font-size: 14px;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                font-weight: 500;
+                color: #555;
+                margin-bottom: 5px;
+                display: block;
+            }
+
+        .input-group {
+            position: relative;
+        }
+
+            .input-group i {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #999;
+                z-index: 10;
+            }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 12px 12px 45px;
+            border: 1px solid #ddd;
+            width: 100%;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+            .btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-login:active {
+                transform: translateY(0);
+            }
+
+        .alert-danger {
+            border-radius: 8px;
+            padding: 12px;
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            margin-bottom: 20px;
+        }
+
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+            .demo-credentials p {
+                margin: 5px 0;
+                color: #666;
+            }
+
+            .demo-credentials i {
+                color: #667eea;
+                margin-right: 5px;
+            }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-calculator fa-3x" style="color: #667eea; margin-bottom: 15px;"></i>
+            <h2>Sistema de Nómina</h2>
+            <p>Ingresa tus credenciales para acceder</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+            <div class="alert-danger">
+                <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="usuario">
+                    <i class="fas fa-user"></i> Usuario
+                </label>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" class="form-control" id="usuario" name="usuario"
+                           required placeholder="Ingresa tu usuario" value="admin">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="clave">
+                    <i class="fas fa-lock"></i> Contraseña
+                </label>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="form-control" id="clave" name="clave"
+                           required placeholder="Ingresa tu contraseña" value="123456">
+                </div>
+            </div>
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="demo-credentials">
+            <p><i class="fas fa-info-circle"></i> <strong>Credenciales de prueba:</strong></p>
+            <p><i class="fas fa-user-tie"></i> Administrador: admin / 123456</p>
+            <p><i class="fas fa-user"></i> RRHH: rrhh / 123456</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,354 @@
+﻿@model IEnumerable<SistemaNominaMVC.Models.ViewModels.NominaVigenteViewModel>
+@{
+    ViewData["Title"] = "Nómina Vigente";
+    var fecha = ViewBag.Fecha as DateTime? ?? DateTime.Today;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">@ViewData["Title"]</h1>
+        <div>
+            <button onclick="exportToPDF()" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </button>
+            <button onclick="exportToExcel()" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Departamento</label>
+                    <select name="departmentId" class="form-select" asp-items="ViewBag.Departments">
+                        <option value="">Todos los departamentos</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha de corte</label>
+                    <input type="date" name="fecha" class="form-control"
+                           value="@fecha.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Consultar
+                    </button>
+                    <a asp-action="NominaVigente" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen de nómina -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Empleados
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count()</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Nómina
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Sum(x => x.Salario).ToString("C2")
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Salario Promedio
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @(Model.Any() ? Model.Average(x => x.Salario).ToString("C2") : "$0.00")
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Departamentos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Select(x => x.Departamento).Distinct().Count()
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-building fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de nómina por departamento -->
+    @{
+        var grupos = Model.GroupBy(x => x.Departamento);
+    }
+
+    @foreach (var grupo in grupos.OrderBy(g => g.Key))
+    {
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-building"></i> @grupo.Key
+                    <span class="badge bg-light text-dark ms-2">@grupo.Count() empleados</span>
+                    <span class="badge bg-light text-dark ms-2 float-end">
+                        Subtotal: @grupo.Sum(x => x.Salario).ToString("C2")
+                    </span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>CI</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th>Cargo</th>
+                                <th>Fecha Ingreso</th>
+                                <th>Salario</th>
+                                <th>Vigencia</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in grupo.OrderBy(x => x.ApellidoEmpleado))
+                            {
+                                <tr>
+                                    <td>@item.CIEmpleado</td>
+                                    <td>@item.NombreEmpleado @item.ApellidoEmpleado</td>
+                                    <td>@item.EmailEmpleado</td>
+                                    <td>@item.TituloEmpleado</td>
+                                    <td>@item.FechaIngreso.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end fw-bold">@item.Salario.ToString("C2")</td>
+                                    <td>
+                                        @if (item.EsSalarioVigente)
+                                        {
+                                            <span class="badge bg-success">Vigente</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">Hasta @item.FechaFinSalario?.ToString("dd/MM/yyyy")</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Employees" asp-action="Details"
+                                           asp-route-id="@item.EmpleadoId" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="5" class="text-end">Subtotal @grupo.Key:</th>
+                                <th class="text-end">@grupo.Sum(x => x.Salario).ToString("C2")</th>
+                                <th colspan="2"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            <i class="fas fa-exclamation-triangle"></i>
+            No hay empleados con salarios vigentes para la fecha @fecha.ToString("dd/MM/yyyy")
+        </div>
+    }
+
+    <!-- Resumen final -->
+    @if (Model.Any())
+    {
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-success text-white">
+                <h6 class="m-0 font-weight-bold">Resumen General de Nómina</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Total de empleados:</th>
+                                <td class="text-end">@Model.Count()</td>
+                            </tr>
+                            <tr>
+                                <th>Total departamentos:</th>
+                                <td class="text-end">@Model.Select(x => x.Departamento).Distinct().Count()</td>
+                            </tr>
+                            <tr>
+                                <th>Salario más alto:</th>
+                                <td class="text-end">@Model.Max(x => x.Salario).ToString("C2")</td>
+                            </tr>
+                            <tr>
+                                <th>Salario más bajo:</th>
+                                <td class="text-end">@Model.Min(x => x.Salario).ToString("C2")</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Total nómina:</th>
+                                <td class="text-end fw-bold text-success">
+                                    @Model.Sum(x => x.Salario).ToString("C2")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Salario promedio:</th>
+                                <td class="text-end">@Model.Average(x => x.Salario).ToString("C2")</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha de corte:</th>
+                                <td class="text-end">@fecha.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            var ctx = document.createElement('canvas');
+            ctx.id = 'salaryChart';
+            ctx.style.height = '300px';
+
+            var chartContainer = $('<div class="card shadow mb-4"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Distribución Salarial por Departamento</h6></div><div class="card-body"></div></div>');
+            chartContainer.find('.card-body').append(ctx);
+            $('.container-fluid').append(chartContainer);
+
+            var departamentos = [];
+            var totales = [];
+
+            @foreach (var grupo in grupos)
+            {
+                    <text>
+                    departamentos.push('@grupo.Key');
+                    totales.push(@grupo.Sum(x => x.Salario));
+                    </text>
+            }
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: departamentos,
+                    datasets: [{
+                        label: 'Total Nómina por Departamento',
+                        data: totales,
+                        backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                        borderColor: '#4e73df',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Total: ' + new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: 'USD'
+                                    }).format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: 'USD',
+                                        minimumFractionDigits: 0
+                                    }).format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        function exportToExcel() {
+            var departmentId = $('select[name="departmentId"]').val();
+            var fecha = $('input[name="fecha"]').val();
+            window.location.href = '@Url.Action("ExportarExcel", "Reports")?tipo=nomina&departmentId=' +
+                                  (departmentId || '') + '&fecha=' + fecha;
+        }
+
+        function exportToPDF() {
+            var departmentId = $('select[name="departmentId"]').val();
+            var fecha = $('input[name="fecha"]').val();
+            window.location.href = '@Url.Action("ExportarPDF", "Reports")?tipo=nomina&departmentId=' +
+                                  (departmentId || '') + '&fecha=' + fecha;
+        }
+    </script>
+}

@@ -1,0 +1,192 @@
+﻿@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Estructura Organizacional";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">@ViewData["Title"]</h1>
+        <div>
+            <button onclick="exportToPDF()" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </button>
+            <button onclick="exportToExcel()" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Departamento</label>
+                    <select id="deptFilter" class="form-select">
+                        <option value="">Todos los departamentos</option>
+                        @foreach (var item in Model)
+                        {
+                            <option value="@item.Departamento.dept_no">@item.Departamento.dept_name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Mostrar</label>
+                    <select id="viewMode" class="form-select">
+                        <option value="all">Todo</option>
+                        <option value="withEmployees">Solo con empleados</option>
+                        <option value="withoutEmployees">Sin empleados</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estructura Organizacional -->
+    @foreach (var item in Model)
+    {
+        <div class="card shadow mb-4 department-card" data-dept="@item.Departamento.dept_no"
+             data-employee-count="@item.Empleados.Count">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-building"></i> @item.Departamento.dept_name
+                    <span class="badge bg-light text-dark ms-2">@item.Empleados.Count empleados</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <!-- Gerente del departamento -->
+                @if (item.Gerente != null)
+                {
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-tie fa-2x me-3"></i>
+                            <div>
+                                <strong>Gerente:</strong> @item.Gerente.first_name @item.Gerente.last_name
+                                <br />
+                                <small>CI: @item.Gerente.ci | Email: @item.Gerente.correo</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle"></i> Este departamento no tiene gerente asignado
+                    </div>
+                }
+
+                <!-- Lista de empleados -->
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-users"></i> Empleados del departamento
+                </h6>
+
+                @if (item.Empleados.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>CI</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Email</th>
+                                    <th>Cargo</th>
+                                    <th>Salario</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var empleado in item.Empleados)
+                                {
+                                    <tr>
+                                        <td>@empleado.ci</td>
+                                        <td>@empleado.first_name @empleado.last_name</td>
+                                        <td>@empleado.correo</td>
+                                        <td>@empleado.Titulo</td>
+                                        <td class="text-end">@empleado.Salario.ToString("C2")</td>
+                                        <td>
+                                            <a asp-controller="Employees" asp-action="Details"
+                                               asp-route-id="@empleado.emp_no" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-secondary">
+                        <i class="fas fa-info-circle"></i> No hay empleados asignados a este departamento
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            <i class="fas fa-exclamation-triangle"></i> No hay departamentos registrados
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#deptFilter').change(function() {
+                var dept = $(this).val();
+                if (dept) {
+                    $('.department-card').hide();
+                    $('.department-card[data-dept="' + dept + '"]').show();
+                } else {
+                    $('.department-card').show();
+                }
+                applyEmployeeFilter();
+            });
+
+            $('#viewMode').change(function() {
+                applyEmployeeFilter();
+            });
+
+            function applyEmployeeFilter() {
+                var mode = $('#viewMode').val();
+                var deptFilter = $('#deptFilter').val();
+
+                $('.department-card').each(function() {
+                    var card = $(this);
+                    var employeeCount = parseInt(card.data('employee-count'));
+                    var shouldShow = true;
+
+                    if (mode === 'withEmployees' && employeeCount === 0) {
+                        shouldShow = false;
+                    } else if (mode === 'withoutEmployees' && employeeCount > 0) {
+                        shouldShow = false;
+                    }
+
+                    if (deptFilter && card.data('dept') !== deptFilter) {
+                        shouldShow = false;
+                    }
+
+                    card.toggle(shouldShow);
+                });
+            }
+        });
+
+        function exportToExcel() {
+            window.location.href = '@Url.Action("ExportarExcel", "Reports")?tipo=estructura';
+        }
+
+        function exportToPDF() {
+            window.location.href = '@Url.Action("ExportarPDF", "Reports")?tipo=estructura';
+        }
+    </script>
+}
