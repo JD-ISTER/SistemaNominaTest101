@@ -1,0 +1,131 @@
+﻿@model IEnumerable<SistemaNominaMVC.Models.LogAuditoriaSalario>
+@{
+    ViewData["Title"] = "Auditoría de Salarios";
+    var fechaInicio = ViewBag.FechaInicio as DateTime? ?? DateTime.Today.AddMonths(-3);
+    var fechaFin = ViewBag.FechaFin as DateTime? ?? DateTime.Today;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">@ViewData["Title"]</h1>
+        <div>
+            <button onclick="exportToExcel()" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" class="form-control" name="fechaInicio"
+                           value="@fechaInicio.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" class="form-control" name="fechaFin"
+                           value="@fechaFin.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Usuario</label>
+                    <select name="usuario" class="form-select" asp-items="ViewBag.Usuarios">
+                        <option value="">Todos los usuarios</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a asp-action="Auditoria" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de auditoría -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Registro de Auditoría</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Empleado</th>
+                            <th>Detalle</th>
+                            <th>Monto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderByDescending(l => l.fechaActualizacion))
+                        {
+                            <tr>
+                                <td>@item.fechaActualizacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@item.usuario</td>
+                                <td>
+                                    <a asp-controller="Employees" asp-action="Details" asp-route-id="@item.emp_no">
+                                        @item.Employee?.first_name @item.Employee?.last_name
+                                    </a>
+                                </td>
+                                <td>@item.DetalleCambio</td>
+                                <td class="text-end fw-bold">@item.salario.ToString("C2")</td>
+                                <td>
+                                    <a asp-controller="Salaries" asp-action="History"
+                                       asp-route-employeeId="@item.emp_no" class="btn btn-info btn-sm">
+                                        <i class="fas fa-history"></i> Ver Historial
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> No hay registros de auditoría en el período seleccionado
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            if ($.fn.DataTable) {
+                $('#dataTable').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+                    },
+                    pageLength: 25,
+                    order: [[0, 'desc']]
+                });
+            }
+        });
+
+        function exportToExcel() {
+            var fechaInicio = $('input[name="fechaInicio"]').val();
+            var fechaFin = $('input[name="fechaFin"]').val();
+            var usuario = $('select[name="usuario"]').val();
+            window.location.href = '@Url.Action("ExportarExcel", "Reports")?tipo=auditoria&fechaInicio=' +
+                                  fechaInicio + '&fechaFin=' + fechaFin + '&usuario=' + (usuario || '');
+        }
+    </script>
+}

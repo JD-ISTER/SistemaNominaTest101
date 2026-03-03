@@ -1,0 +1,196 @@
+﻿@{
+    ViewData["Title"] = "Reportes";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4">@ViewData["Title"]</h1>
+
+    <div class="row">
+        <!-- Reporte 1: Nómina Vigente -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Nómina Vigente
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Por Departamento</div>
+                            <p class="mb-0 text-muted small">Consulta la nómina actual por departamento</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-invoice fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <a href="/Reports/NominaVigente" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte 2: Cambios Salariales -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Cambios Salariales
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Histórico</div>
+                            <p class="mb-0 text-muted small">Consulta cambios salariales por período</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <a href="/Reports/CambiosSalariales" class="btn btn-success btn-sm">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte 3: Estructura Organizacional -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Estructura Organizacional
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Departamentos</div>
+                            <p class="mb-0 text-muted small">Jerarquía de departamentos y empleados</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-sitemap fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <a href="/Reports/EstructuraOrganizacional" class="btn btn-info btn-sm">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte 4: Auditoría -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Auditoría
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Log de Actividades</div>
+                            <p class="mb-0 text-muted small">Registro de cambios en el sistema</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <a href="/Reports/Auditoria" class="btn btn-warning btn-sm">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte 5: Empleados por Departamento -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Empleados por Depto.
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Distribución</div>
+                            <p class="mb-0 text-muted small">Cantidad de empleados por departamento</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <a href="#" class="btn btn-danger btn-sm">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte 6: Vigencias por Vencer -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Vigencias por Vencer
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Próximos 30 días</div>
+                            <p class="mb-0 text-muted small">Contratos, asignaciones y títulos</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <a href="#" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos a Exportación -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Exportar Datos</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-success w-100" onclick="exportToExcel('empleados')">
+                                <i class="fas fa-file-excel"></i> Empleados
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-success w-100" onclick="exportToExcel('departamentos')">
+                                <i class="fas fa-file-excel"></i> Departamentos
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-success w-100" onclick="exportToExcel('salarios')">
+                                <i class="fas fa-file-excel"></i> Salarios
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-success w-100" onclick="exportToExcel('auditoria')">
+                                <i class="fas fa-file-excel"></i> Auditoría
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportToExcel(tipo) {
+            window.location.href = '/Reports/ExportarExcel?tipo=' + tipo;
+        }
+    </script>
+}
